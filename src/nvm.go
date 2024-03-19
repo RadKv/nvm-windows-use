@@ -718,7 +718,34 @@ func accessDenied(err error) bool {
 	return false
 }
 
+func getVersionNvmrc() string {
+	file, err := os.Open(".nvmrc")
+
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+		return ""
+	}
+	defer file.Close()
+
+	// Create a scanner to read from the file
+	scanner := bufio.NewReader(file)
+
+	// Read one line from the file
+	line, err := scanner.ReadString('\n')
+
+	// Check for any errors encountered during scanning
+	if err != nil && err != io.EOF {
+		fmt.Println("Error reading file:", err)
+	}
+	fmt.Println("Detected from .nvmrc:", line)
+	return line
+}
+
 func use(version string, cpuarch string, reload ...bool) {
+	if version == "" {
+		version = getVersionNvmrc()
+	}
+
 	version, cpuarch, err := getVersion(version, cpuarch, true)
 
 	if err != nil {
